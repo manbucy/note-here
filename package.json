@@ -1,0 +1,25 @@
+{
+  "name": "note-here",
+  "version": "1.0.0",
+  "description": "note here for markdown",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "anynote": "./src/index.js"
+  },
+  "keywords": [
+    "notehere"
+  ],
+  "author": "manbucy",
+  "license": "ISC",
+  "dependencies": {
+    "art-template": "^4.13.2",
+    "dateformat": "^3.0.3",
+    "highlight.js": "^9.15.8",
+    "markdown-it": "^8.4.2",
+    "marked": "^0.6.2",
+    "mime": "^2.4.3"
+  }
+}
