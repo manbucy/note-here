@@ -1,11 +1,15 @@
 #!/usr/bin/env node
-let http = require('http');
+// 系统
+let os = require('os');
 let fs = require('fs');
+let path = require('path');
+let exec = require('child_process').exec;
+let spawn = require('child_process').spawn;
+// 网络
+let http = require('http');
 let url = require('url');
 let mime = require('mime');
-let path = require('path');
-let hljs = require('highlight.js');
-let dateFormat = require('dateformat');
+// markdown
 let marked = require('marked');
 marked.setOptions({
     renderer: new marked.Renderer(),
@@ -21,40 +25,69 @@ marked.setOptions({
     smartypants: false,
     xhtml: false
 });
+let hljs = require('highlight.js');
+let dateFormat = require('dateformat');
 let template = require('art-template');
-const rootDir = process.cwd();
-console.log('rootDir: ' + rootDir);
-
+// 命令行
+let argv = require("minimist")(process.argv.slice(2), {
+    alias: {
+        'port': 'p',
+        'hostname': 'h',
+        'dir': 'd',
+        'log': 'l',
+    },
+    string: ['port', 'hostname', 'dir'],
+    boolean: ['log'],
+    'default': {
+        'port': 8000,
+        'dir': process.cwd()
+    }
+});
+if (argv.log) {
+    console.log('argv.port', argv.port);
+    console.log('argv.hostname', argv.hostname);
+    console.log('argv.dir', argv.dir);
+    console.log('argv.log', argv.log);
+}
+console.log('rootDir: ' + argv.dir);
 http.createServer(function (req, res) {
     // 解析请求，包括文件名
-    console.log('url: ', req.url);
+    if (argv.log) {
+        console.log('url: ', req.url);
+    }
     let relativePath = decodeURIComponent(url.parse(req.url).pathname);
-    let filePath = path.resolve(rootDir, relativePath.substr(1));
-    console.log('filePath: ' + filePath);
+    let filePath = path.resolve(argv.dir, relativePath.substr(1));
+    if (argv.log) {
+        console.log('filePath: ' + filePath);
+    }
     // 从文件系统中读取请求的文件内容
     fs.readFile(filePath, (err, data) => {
         if (err) {
-            console.log(err.code)
-            console.log(typeof err.code)
             if (err.code == 'EISDIR') {
                 // filePath 为目录或者不存在
                 fs.stat(filePath, (err, stats) => {
                     if (err) {
-                        console.log('get file: \'' + filePath + '\' stat wrong');
+                        if (argv.log) {
+                            console.log('get file: \'' + filePath + '\' stat wrong');
+                        }
                         return404(res)
                     } else {
                         if (stats.isDirectory()) {
                             returnDir(res, stats, relativePath);
                         } else {
                             // 文件读取出错， 文件存在， 但不是目录， 不具有读权限
-                            console.log('the file: \'' + filePath + '\' is not directory, but read file was wrong');
+                            if (argv.log) {
+                                console.log('the file: \'' + filePath + '\' is not directory, but read file was wrong');
+                            }
                             return404(res);
                         }
                     }
                 })
             } else {
                 // 文件不存在
-                console.log('read file: \'' + filePath + '\' error, the file maybe not exist');
+                if (argv.log) {
+                    console.log('read file: \'' + filePath + '\' error, the file maybe not exist');
+                }
                 return404(res);
             }
         } else {
@@ -62,15 +95,48 @@ http.createServer(function (req, res) {
             returnFile(res, data, filePath);
         }
     });
-}).listen(8080);
+}).listen(argv.port);
+let indexUrl = "http://" + getIPAddress() + ":" + argv.port + "/";
+console.log("indexUrl: ", indexUrl);
+openURL(indexUrl);
+
+/**
+ * Get ip(v4) address
+ * @return {String} the ipv4 address or 'localhost'
+ */
+function getIPAddress() {
+    let ifaces = os.networkInterfaces();
+    let ip = '';
+    for (let dev in ifaces) {
+        ifaces[dev].forEach(function (details) {
+            if (ip === '' && details.family === 'IPv4' && !details.internal) {
+                ip = details.address;
+                return;
+            }
+        });
+    }
+    return ip || "127.0.0.1";
+}
+
+function openURL(url) {
+    switch (process.platform) {
+        case "darwin":
+            exec('open ' + url);
+            break;
+        case "win32":
+            exec('start ' + url);
+            break;
+        default:
+            spawn('xdg-open', [url]);
+    }
+}
 
 function get404Page() {
     return '<!doctype html><title>404 Not Found</title><h1 style="text-align: center">404 Not Found</h1>';
 }
 
 function returnDir(res, stats, relativePath) {
-    console.log('return dir');
-    let filePath = path.resolve(rootDir, relativePath.substr(1));
+    let filePath = path.resolve(argv.dir, relativePath.substr(1));
     fs.readdir(filePath, (err, files) => {
         if (err) {
             return404(res);
@@ -78,17 +144,16 @@ function returnDir(res, stats, relativePath) {
             let dirArr = [];
             let fileArr = [];
             files.forEach(file => {
-                console.log(path.resolve(filePath, file));
                 let stats = fs.statSync(path.resolve(filePath, file));
                 if (stats.isDirectory()) {
                     dirArr.push({
-                        src: path.resolve(filePath, file).replace(rootDir, ''),
+                        src: path.resolve(filePath, file).replace(argv.dir, ''),
                         fileName: file,
                         time: dateFormat(stats.mtime, 'yyyy-mm-dd HH:MM:ss')
                     })
                 } else {
                     fileArr.push({
-                        src: path.resolve(filePath, file).replace(rootDir, ''),
+                        src: path.resolve(filePath, file).replace(argv.dir, ''),
                         fileName: file,
                         time: dateFormat(stats.birthtime, 'yyyy-mm-dd HH:MM:ss')
                     })
@@ -101,8 +166,6 @@ function returnDir(res, stats, relativePath) {
                 dirs: dirArr,
                 files: fileArr
             });
-            console.log('relativePath', relativePath)
-            console.log('topDir',getTopDir(relativePath));
             res.writeHead(200, {'Content-Type': 'text/html;charset=UTF-8'});
             res.write(html);
             res.end();
@@ -111,7 +174,6 @@ function returnDir(res, stats, relativePath) {
 }
 
 function returnFile(res, data, filePath) {
-    console.log('return file');
     if (mime.getType(filePath) === mime.getType('md')) {
         res.writeHead(200, {'Content-Type': 'text/html;charset=UTF-8'});
         let html = template(path.resolve(__dirname, './article.html'), {
@@ -130,7 +192,6 @@ function returnFile(res, data, filePath) {
 }
 
 function return404(res) {
-    console.log('return 404');
     res.writeHead(404, {'Content-Type': 'text/html;charset=UTF-8'});
     res.write(get404Page());
     res.end();
@@ -144,6 +205,6 @@ function getTopDir(path) {
         path = '/' + path;
     }
     let pathArr = path.split('/');
-    pathArr[pathArr.length -1] = '';
+    pathArr[pathArr.length - 1] = '';
     return pathArr.join('/')
 }
