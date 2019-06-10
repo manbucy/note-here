@@ -35,11 +35,12 @@ let argv = require("minimist")(process.argv.slice(2), {
         'hostname': 'h',
         'dir': 'd',
         'log': 'l',
+        'open': 'o'
     },
-    string: ['port', 'hostname', 'dir'],
+    string: ['port', 'hostname', 'dir', 'open'],
     boolean: ['log'],
     'default': {
-        'port': 8000,
+        'port': 1408,
         'dir': process.cwd()
     }
 });
@@ -96,7 +97,7 @@ http.createServer(function (req, res) {
         }
     });
 }).listen(argv.port);
-let indexUrl = "http://" + getIPAddress() + ":" + argv.port + "/";
+let indexUrl = "http://" + getIPAddress() + ":" + argv.port + "/" + (argv.open ? argv.open : '');
 console.log("indexUrl: ", indexUrl);
 openURL(indexUrl);
 
