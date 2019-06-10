@@ -35,10 +35,11 @@ let argv = require("minimist")(process.argv.slice(2), {
         'hostname': 'h',
         'dir': 'd',
         'log': 'l',
-        'open': 'o'
+        'open': 'o',
+        'silent': 's',
     },
     string: ['port', 'hostname', 'dir', 'open'],
-    boolean: ['log'],
+    boolean: ['silent','log'],
     'default': {
         'port': 1408,
         'dir': process.cwd()
@@ -58,6 +59,10 @@ http.createServer(function (req, res) {
     }
     let relativePath = decodeURIComponent(url.parse(req.url).pathname);
     let filePath = path.resolve(argv.dir, relativePath.substr(1));
+    // 网址图标
+    if (filePath.endsWith("favicon.ico")) {
+        filePath = path.resolve(__dirname, './favicon.ico')
+    }
     if (argv.log) {
         console.log('filePath: ' + filePath);
     }
@@ -99,7 +104,9 @@ http.createServer(function (req, res) {
 }).listen(argv.port);
 let indexUrl = "http://" + getIPAddress() + ":" + argv.port + "/" + (argv.open ? argv.open : '');
 console.log("indexUrl: ", indexUrl);
-openURL(indexUrl);
+if (!argv.silent) {
+    openURL(indexUrl);
+}
 
 /**
  * Get ip(v4) address
@@ -161,7 +168,7 @@ function returnDir(res, stats, relativePath) {
                 }
             });
             html = template(path.resolve(__dirname, './index.html'), {
-                title: 'test',
+                title: 'ManBu',
                 showTopDir: relativePath != '/',
                 topDir: getTopDir(relativePath),
                 dirs: dirArr,
