@@ -45,13 +45,18 @@ let argv = require("minimist")(process.argv.slice(2), {
         'dir': process.cwd()
     }
 });
-if (argv.log) {
-    console.log('argv.port', argv.port);
-    console.log('argv.hostname', argv.hostname);
-    console.log('argv.dir', argv.dir);
-    console.log('argv.log', argv.log);
-}
-console.log('rootDir: ' + argv.dir);
+
+// 开启关闭日志
+argv.log ? console.log('----日志已开启----') : function(){console.log('----日志已关闭----');console.log = () => {}}();
+console.log(`
+===== default conf =====
+--- argv.port ${argv.port}
+--- argv.hostname ${argv.hostname}
+--- argv.dir ${argv.dir}
+--- argv.log ${argv.log}
+--- rootDir ${argv.dir}
+========================
+`)
 http.createServer(function (req, res) {
     // 解析请求，包括文件名
     if (argv.log) {
