@@ -59,18 +59,14 @@ console.log(`
 `)
 http.createServer(function (req, res) {
     // 解析请求，包括文件名
-    if (argv.log) {
-        console.log('url: ', req.url);
-    }
+    console.log('url: ', req.url);
     let relativePath = decodeURIComponent(url.parse(req.url).pathname);
     let filePath = path.resolve(argv.dir, relativePath.substr(1));
     // 网址图标
     if (filePath.endsWith("favicon.ico")) {
         filePath = path.resolve(__dirname, './favicon.ico')
     }
-    if (argv.log) {
-        console.log('filePath: ' + filePath);
-    }
+    console.log('filePath: ' + filePath);
     // 从文件系统中读取请求的文件内容
     fs.readFile(filePath, (err, data) => {
         if (err) {
@@ -78,27 +74,21 @@ http.createServer(function (req, res) {
                 // filePath 为目录或者不存在
                 fs.stat(filePath, (err, stats) => {
                     if (err) {
-                        if (argv.log) {
-                            console.log('get file: \'' + filePath + '\' stat wrong');
-                        }
+                        console.log('get file: \'' + filePath + '\' stat wrong');
                         return404(res)
                     } else {
                         if (stats.isDirectory()) {
                             returnDir(res, stats, relativePath);
                         } else {
                             // 文件读取出错， 文件存在， 但不是目录， 不具有读权限
-                            if (argv.log) {
-                                console.log('the file: \'' + filePath + '\' is not directory, but read file was wrong');
-                            }
+                            console.log('the file: \'' + filePath + '\' is not directory, but read file was wrong');
                             return404(res);
                         }
                     }
                 })
             } else {
                 // 文件不存在
-                if (argv.log) {
-                    console.log('read file: \'' + filePath + '\' error, the file maybe not exist');
-                }
+                console.log('read file: \'' + filePath + '\' error, the file maybe not exist');
                 return404(res);
             }
         } else {
