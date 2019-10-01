@@ -2,6 +2,12 @@
 ## 简介
 在本地启动一个 server 服务，可以当做一个静态文件服务器，更能方便在浏览器中浏览 Markdown 文档。
 
+## 安装
+
+```js
+npm i note-here
+```
+
 ## 调试
 `node ./src/index.js` == `notehere`
 
