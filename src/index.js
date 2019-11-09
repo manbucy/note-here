@@ -162,7 +162,7 @@ function returnDir(res, stats, relativePath) {
                     })
                 }
             });
-            html = template(path.resolve(__dirname, './index.html'), {
+            html = template(path.resolve(__dirname, './template/index.html'), {
                 title: 'ManBu',
                 showTopDir: relativePath != '/',
                 topDir: getTopDir(relativePath),
@@ -179,7 +179,7 @@ function returnDir(res, stats, relativePath) {
 function returnFile(res, data, filePath) {
     if (mime.getType(filePath) === mime.getType('md')) {
         res.writeHead(200, {'Content-Type': 'text/html;charset=UTF-8'});
-        let html = template(path.resolve(__dirname, './article.html'), {
+        let html = template(path.resolve(__dirname, './template/article.html'), {
             article: {
                 title: path.basename(filePath, ".md"),
                 articleTitle: path.basename(filePath, ".md"),
