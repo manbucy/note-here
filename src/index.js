@@ -64,7 +64,7 @@ http.createServer(function (req, res) {
     let filePath = path.resolve(argv.dir, relativePath.substr(1));
     // 网址图标
     if (filePath.endsWith("favicon.ico")) {
-        filePath = path.resolve(__dirname, './favicon.ico')
+        filePath = path.resolve(__dirname, './template/favicon.ico')
     }
     console.log('filePath: ' + filePath);
     // 从文件系统中读取请求的文件内容
