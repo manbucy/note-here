@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 // 系统
-let os = require('os');
 let fs = require('fs');
 let path = require('path');
 let exec = require('child_process').exec;
@@ -57,6 +56,8 @@ console.log(`
 --- rootDir ${argv.dir}
 ========================
 `)
+
+// 创建http服务
 http.createServer(function (req, res) {
     // 解析请求，包括文件名
     console.log('url: ', req.url);
@@ -97,7 +98,7 @@ http.createServer(function (req, res) {
         }
     });
 }).listen(argv.port);
-let indexUrl = "http://" + getIPAddress() + ":" + argv.port + "/" + (argv.open ? argv.open : '');
+let indexUrl = "http://" + netUtil.getIPAddress() + ":" + argv.port + "/" + (argv.open ? argv.open : '');
 console.log("indexUrl: ", indexUrl);
 if (!argv.silent) {
     openURL(indexUrl);
