@@ -2,8 +2,7 @@
 // 系统
 let fs = require('fs');
 let path = require('path');
-let exec = require('child_process').exec;
-let spawn = require('child_process').spawn;
+
 // 网络
 let http = require('http');
 let url = require('url');
@@ -101,7 +100,7 @@ http.createServer(function (req, res) {
 let indexUrl = "http://" + netUtil.getIPAddress() + ":" + argv.port + "/" + (argv.open ? argv.open : '');
 console.log("indexUrl: ", indexUrl);
 if (!argv.silent) {
-    openURL(indexUrl);
+    netUtil.openURL(indexUrl);
 }
 
 /**
