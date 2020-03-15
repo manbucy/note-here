@@ -6,7 +6,9 @@ let path = require('path');
 // 网络
 let http = require('http');
 let url = require('url');
-let mime = require('mime');
+
+let netUtil = require('./core/net.js')
+let fileUtil = require('./core/file')
 // markdown
 let marked = require('marked');
 marked.setOptions({
@@ -24,8 +26,7 @@ marked.setOptions({
     xhtml: false
 });
 let hljs = require('highlight.js');
-let dateFormat = require('dateformat');
-let template = require('art-template');
+
 // 命令行
 let argv = require("minimist")(process.argv.slice(2), {
     alias: {
@@ -75,25 +76,25 @@ http.createServer(function (req, res) {
                 fs.stat(filePath, (err, stats) => {
                     if (err) {
                         console.log('get file: \'' + filePath + '\' stat wrong');
-                        return404(res)
+                        fileUtil.return404(res)
                     } else {
                         if (stats.isDirectory()) {
-                            returnDir(res, stats, relativePath);
+                            fileUtil.returnDir(res, stats, relativePath);
                         } else {
                             // 文件读取出错， 文件存在， 但不是目录， 不具有读权限
                             console.log('the file: \'' + filePath + '\' is not directory, but read file was wrong');
-                            return404(res);
+                            fileUtil.return404(res);
                         }
                     }
                 })
             } else {
                 // 文件不存在
                 console.log('read file: \'' + filePath + '\' error, the file maybe not exist');
-                return404(res);
+                fileUtil.return404(res);
             }
         } else {
             // 文件存在且读取成功
-            returnFile(res, data, filePath);
+            fileUtil.returnFile(res, data, filePath);
         }
     });
 }).listen(argv.port);
@@ -101,113 +102,4 @@ let indexUrl = "http://" + netUtil.getIPAddress() + ":" + argv.port + "/" + (arg
 console.log("indexUrl: ", indexUrl);
 if (!argv.silent) {
     netUtil.openURL(indexUrl);
-}
-
-/**
- * Get ip(v4) address
- * @return {String} the ipv4 address or 'localhost'
- */
-function getIPAddress() {
-    let ifaces = os.networkInterfaces();
-    let ip = '';
-    for (let dev in ifaces) {
-        ifaces[dev].forEach(function (details) {
-            if (ip === '' && details.family === 'IPv4' && !details.internal) {
-                ip = details.address;
-                return;
-            }
-        });
-    }
-    return ip || "127.0.0.1";
-}
-
-function openURL(url) {
-    switch (process.platform) {
-        case "darwin":
-            exec('open ' + url);
-            break;
-        case "win32":
-            exec('start ' + url);
-            break;
-        default:
-            spawn('xdg-open', [url]);
-    }
-}
-
-function get404Page() {
-    return '<!doctype html><title>404 Not Found</title><h1 style="text-align: center">404 Not Found</h1>';
-}
-
-function returnDir(res, stats, relativePath) {
-    let filePath = path.resolve(argv.dir, relativePath.substr(1));
-    fs.readdir(filePath, (err, files) => {
-        if (err) {
-            return404(res);
-        } else {
-            let dirArr = [];
-            let fileArr = [];
-            files.forEach(file => {
-                let stats = fs.statSync(path.resolve(filePath, file));
-                if (stats.isDirectory()) {
-                    dirArr.push({
-                        src: path.resolve(filePath, file).replace(argv.dir, ''),
-                        fileName: file,
-                        time: dateFormat(stats.mtime, 'yyyy-mm-dd HH:MM:ss')
-                    })
-                } else {
-                    fileArr.push({
-                        src: path.resolve(filePath, file).replace(argv.dir, ''),
-                        fileName: file,
-                        time: dateFormat(stats.birthtime, 'yyyy-mm-dd HH:MM:ss')
-                    })
-                }
-            });
-            html = template(path.resolve(__dirname, './template/index.html'), {
-                title: 'ManBu',
-                showTopDir: relativePath != '/',
-                topDir: getTopDir(relativePath),
-                dirs: dirArr,
-                files: fileArr
-            });
-            res.writeHead(200, {'Content-Type': 'text/html;charset=UTF-8'});
-            res.write(html);
-            res.end();
-        }
-    })
-}
-
-function returnFile(res, data, filePath) {
-    if (mime.getType(filePath) === mime.getType('md')) {
-        res.writeHead(200, {'Content-Type': 'text/html;charset=UTF-8'});
-        let html = template(path.resolve(__dirname, './template/article.html'), {
-            article: {
-                title: path.basename(filePath, ".md"),
-                articleTitle: path.basename(filePath, ".md"),
-                content: marked(data.toString())
-            }
-        });
-        res.write(html)
-    } else {
-        res.writeHead(200, {'Content-Type': mime.getType(filePath) + ';' + 'charset=UTF-8'});
-        res.write(data);
-    }
-    res.end();
-}
-
-function return404(res) {
-    res.writeHead(404, {'Content-Type': 'text/html;charset=UTF-8'});
-    res.write(get404Page());
-    res.end();
-}
-
-function getTopDir(path) {
-    if (path.endsWith('/')) {
-        path = path.substring(0, path.length - 1);
-    }
-    if (!path.startsWith('/')) {
-        path = '/' + path;
-    }
-    let pathArr = path.split('/');
-    pathArr[pathArr.length - 1] = '';
-    return pathArr.join('/')
 }
