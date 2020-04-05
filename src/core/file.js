@@ -8,8 +8,8 @@ function get404Page() {
     return '<!doctype html><title>404 Not Found</title><h1 style="text-align: center">404 Not Found</h1>';
 }
 
-function returnDir(res, stats, relativePath) {
-    let filePath = path.resolve(argv.dir, relativePath.substr(1));
+function returnDir(res, stats, rootPath, relativePath) {
+    let filePath = path.resolve(rootPath, relativePath.substr(1));
     fs.readdir(filePath, (err, files) => {
         if (err) {
             return404(res);
@@ -20,19 +20,19 @@ function returnDir(res, stats, relativePath) {
                 let stats = fs.statSync(path.resolve(filePath, file));
                 if (stats.isDirectory()) {
                     dirArr.push({
-                        src: path.resolve(filePath, file).replace(argv.dir, ''),
+                        src: path.resolve(filePath, file).replace(rootPath, ''),
                         fileName: file,
                         time: dateFormat(stats.mtime, 'yyyy-mm-dd HH:MM:ss')
                     })
                 } else {
                     fileArr.push({
-                        src: path.resolve(filePath, file).replace(argv.dir, ''),
+                        src: path.resolve(filePath, file).replace(rootPath, ''),
                         fileName: file,
                         time: dateFormat(stats.birthtime, 'yyyy-mm-dd HH:MM:ss')
                     })
                 }
             });
-            html = template(path.resolve(__dirname, './template/index.html'), {
+            html = template(path.resolve(__dirname, '../template/index.html'), {
                 title: 'ManBu',
                 showTopDir: relativePath != '/',
                 topDir: getTopDir(relativePath),
@@ -49,7 +49,7 @@ function returnDir(res, stats, relativePath) {
 function returnFile(res, data, filePath) {
     if (mime.getType(filePath) === mime.getType('md')) {
         res.writeHead(200, {'Content-Type': 'text/html;charset=UTF-8'});
-        let html = template(path.resolve(__dirname, './template/article.html'), {
+        let html = template(path.resolve(__dirname, '../template/article.html'), {
             article: {
                 title: path.basename(filePath, ".md"),
                 articleTitle: path.basename(filePath, ".md"),

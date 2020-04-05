@@ -79,7 +79,7 @@ http.createServer(function (req, res) {
                         fileUtil.return404(res)
                     } else {
                         if (stats.isDirectory()) {
-                            fileUtil.returnDir(res, stats, relativePath);
+                            fileUtil.returnDir(res, stats, argv.dir, relativePath);
                         } else {
                             // 文件读取出错， 文件存在， 但不是目录， 不具有读权限
                             console.log('the file: \'' + filePath + '\' is not directory, but read file was wrong');
