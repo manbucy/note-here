@@ -15,3 +15,8 @@ npm i note-here
 - `-d` 指定文件服务的根目录, 默认在当前目录启动服务. eg: `notehere -d C:\Users\ManBu\Desktop`
 - `-p` 指定服务监听的端口, 默认端口 `1408`. eg: `notehere -p 8080`
 - `-l` 打开调试模式 eg: `notehere -l`
+
+## 待完成
+- 支持音频、视频文件直接打开
+- 支持sql文件直接打开浏览
+- 支持其它普通文本文件打开
