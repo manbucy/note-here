@@ -4,6 +4,24 @@ let dateFormat = require('dateformat');
 let template = require('art-template');
 let mime = require('mime');
 
+// markdown
+let hljs = require('highlight.js');
+let marked = require('marked');
+marked.setOptions({
+    renderer: new marked.Renderer(),
+    highlight: function (code, lang) {
+        return hljs.highlightAuto(code).value;
+    },
+    pedantic: false,
+    gfm: true,
+    tables: true,
+    breaks: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false,
+    xhtml: false
+});
+
 function get404Page() {
     return '<!doctype html><title>404 Not Found</title><h1 style="text-align: center">404 Not Found</h1>';
 }

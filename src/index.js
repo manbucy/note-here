@@ -9,23 +9,6 @@ let url = require('url');
 
 let netUtil = require('./core/net.js')
 let fileUtil = require('./core/file')
-// markdown
-let marked = require('marked');
-marked.setOptions({
-    renderer: new marked.Renderer(),
-    highlight: function (code, lang) {
-        return hljs.highlightAuto(code).value;
-    },
-    pedantic: false,
-    gfm: true,
-    tables: true,
-    breaks: false,
-    sanitize: false,
-    smartLists: true,
-    smartypants: false,
-    xhtml: false
-});
-let hljs = require('highlight.js');
 
 // 命令行
 let argv = require("minimist")(process.argv.slice(2), {
