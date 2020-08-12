@@ -14,13 +14,12 @@ let fileUtil = require('./core/file')
 let argv = require("minimist")(process.argv.slice(2), {
     alias: {
         'port': 'p',
-        'hostname': 'h',
         'dir': 'd',
         'log': 'l',
         'open': 'o',
         'silent': 's',
     },
-    string: ['port', 'hostname', 'dir', 'open'],
+    string: ['port', 'dir', 'open'],
     boolean: ['silent','log'],
     'default': {
         'port': 1408,
@@ -33,7 +32,6 @@ argv.log ? console.log('----日志已开启----') : function(){console.log('----
 console.log(`
 ===== default conf =====
 --- argv.port ${argv.port}
---- argv.hostname ${argv.hostname}
 --- argv.dir ${argv.dir}
 --- argv.log ${argv.log}
 --- rootDir ${argv.dir}
