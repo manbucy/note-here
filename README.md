@@ -20,3 +20,8 @@ npm i note-here
 - 支持音频、视频文件直接打开
 - 支持sql文件直接打开浏览
 - 支持其它普通文本文件打开
+
+## 截图展示
+![Image text](https://github.com/manbucy/note-here/blob/master/doc/image/index.png)  
+![Image text](https://github.com/manbucy/note-here/blob/master/doc/image/mk.png)  
+![Image text](https://github.com/manbucy/note-here/blob/master/doc/image/dd.png)  
