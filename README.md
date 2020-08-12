@@ -22,6 +22,9 @@ npm i note-here
 - 支持其它普通文本文件打开
 
 ## 截图展示
+- 首页  
 ![Image text](https://github.com/manbucy/note-here/blob/master/doc/image/index.png)  
+- md文章  
 ![Image text](https://github.com/manbucy/note-here/blob/master/doc/image/mk.png)  
+- 图片  
 ![Image text](https://github.com/manbucy/note-here/blob/master/doc/image/dd.png)  
