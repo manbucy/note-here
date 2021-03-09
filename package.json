@@ -19,7 +19,7 @@
     "dateformat": "^3.0.3",
     "highlight.js": "^10.1.2",
     "markdown-it": "^11.0.0",
-    "marked": "^1.1.1",
+    "marked": "^2.0.0",
     "mime": "^2.4.6",
     "minimist": "^1.2.5"
   }
